@@ -1,20 +1,27 @@
 package com.example.shrink_me;
 
-import java.util.Optional;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.AllArgsConstructor;
-
 @Service
-@AllArgsConstructor
 public class UrlShortenService {
-    private final UrlMappingRepository urlMappingRepository;
+    private final UrlMappingRepository repository;
+    private final int defaultTtlMinutes;
+
+    public UrlShortenService(UrlMappingRepository repository, @Value("${default-ttl-minutes}") int defaultTtlMinutes) {
+        this.repository = repository;
+        this.defaultTtlMinutes = defaultTtlMinutes;
+    }
 
     @Transactional
     public UrlMapping shortenUrl(String longUrl) {
-        Optional<UrlMapping> existingMapping = urlMappingRepository.findByLongUrl(longUrl);
+        return shortenUrl(longUrl, null);
+    }
+
+    @Transactional
+    public UrlMapping shortenUrl(String longUrl, Integer ttlMinutes) {
+        var existingMapping = repository.findByLongUrl(longUrl);
 
         if (existingMapping.isPresent()) {
             return existingMapping.get();
@@ -23,28 +30,28 @@ public class UrlShortenService {
         String shortkey;
         do {
             shortkey = RandomKey.generate();
-        } while (urlMappingRepository.findByShortKey(shortkey).isPresent());
+        } while (repository.findByShortKey(shortkey).isPresent());
 
-        UrlMapping newMapping = new UrlMapping(longUrl, shortkey);
-        urlMappingRepository.save(newMapping);
+        int ttlToUse = (ttlMinutes != null) ? ttlMinutes : defaultTtlMinutes;
+        UrlMapping newMapping = new UrlMapping(longUrl, shortkey, ttlToUse);
+        repository.save(newMapping);
 
         return newMapping;
     }
 
-    @Transactional(readOnly = true)
-    public String getLongUrl(String shortKey) {
-        Optional<UrlMapping> mapping = urlMappingRepository.findByShortKey(shortKey);
-
-        return mapping.map(UrlMapping::getLongUrl).orElseThrow();
-    }
-
-    public Optional<UrlMapping> resolve(String key) {
-        return urlMappingRepository.findByShortKey(key);
-    }
-
     @Transactional
+    public String resolve(String shortKey) {
+        var mapping = this.getMapping(shortKey);
+        this.incrementClicks(mapping);
+        return mapping.getLongUrl();
+    }
+
     public void incrementClicks(UrlMapping mapping) {
         mapping.setClicks(mapping.getClicks() + 1);
-        urlMappingRepository.save(mapping);
+    }
+
+    public UrlMapping getMapping(String shortKey) {
+        return repository.findByShortKey(shortKey)
+                .orElseThrow(() -> new RuntimeException("URL mapping not found"));
     }
 }

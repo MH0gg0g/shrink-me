@@ -10,12 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
 @Entity
-@NoArgsConstructor
 @Table(name = "url_mapping")
 public class UrlMapping {
 
@@ -40,9 +36,77 @@ public class UrlMapping {
     @Column(name = "clicks")
     private int clicks;
 
+    public UrlMapping() {
+    }
+
     public UrlMapping(String longUrl, String shortKey) {
         this.longUrl = longUrl;
         this.shortKey = shortKey;
     }
 
+    public UrlMapping(String longUrl, String shortKey, int ttlMinutes) {
+        this.longUrl = longUrl;
+        this.shortKey = shortKey;
+        this.expiryDate = LocalDateTime.now().plusMinutes(ttlMinutes);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLongUrl() {
+        return longUrl;
+    }
+
+    public void setLongUrl(String longUrl) {
+        this.longUrl = longUrl;
+    }
+
+    public String getShortKey() {
+        return shortKey;
+    }
+
+    public void setShortKey(String shortKey) {
+        this.shortKey = shortKey;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDateTime expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public int getClicks() {
+        return clicks;
+    }
+
+    public void setClicks(int clicks) {
+        this.clicks = clicks;
+    }
+
+    @Override
+    public String toString() {
+        return "UrlMapping{" +
+                "id=" + id +
+                ", longUrl='" + longUrl + '\'' +
+                ", shortKey='" + shortKey + '\'' +
+                ", createdAt=" + createdAt +
+                ", expiryDate=" + expiryDate +
+                ", clicks=" + clicks +
+                '}';
+    }
 }

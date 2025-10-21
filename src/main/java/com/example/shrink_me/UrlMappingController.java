@@ -1,43 +1,51 @@
 package com.example.shrink_me;
 
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
-@AllArgsConstructor
 public class UrlMappingController {
-    private final UrlShortenService urlShortenService;
+    @Value("${websiteUrl}")
+    private String websiteUrl;
+    private final UrlShortenService service;
 
-    @PostMapping("/api/shorten")
-    public ResponseEntity<UrlMapping> Shortened(@Valid @RequestBody RequestDto request) {
-        UrlMapping responseUrl = urlShortenService.shortenUrl(request.getUrl());
-        return ResponseEntity.ok(responseUrl);
+    public UrlMappingController(UrlShortenService service) {
+        this.service = service;
     }
 
-    @GetMapping("/{shortKey}")
-    public ResponseEntity<?> redirect(@PathVariable String shortKey) {
-        var mapping = urlShortenService.resolve(shortKey);
-        if (mapping.isEmpty()) {
-            throw new RuntimeException("URL mapping not found");
-        }
-        urlShortenService.incrementClicks(mapping.get());
-        return ResponseEntity.ok(mapping.get());
+    @PostMapping("/api/shorten")
+    public ResponseEntity<?> Shorten(@Valid @RequestBody RequestDto request) {
+        UrlMapping mapping = service.shortenUrl(request.getUrl(), request.getTtlMinutes());
+        var shortObj = Map.of(
+                "Url", mapping.getLongUrl(),
+                "shortUrl", websiteUrl + mapping.getShortKey(),
+                "CreatedAt", mapping.getCreatedAt().toString(),
+                "ExpiresAt", mapping.getExpiryDate().toString());
+        return ResponseEntity.ok(shortObj);
+    }
+
+    @GetMapping("/{shortKey:[a-zA-Z0-9_-]{4,64}}")
+    public ResponseEntity<String> redirect(@PathVariable String shortKey) {
+        var longUrl = service.resolve(shortKey);
+        return ResponseEntity.ok(longUrl);
     }
 
     @GetMapping("/api/stats/{shortKey}")
     public ResponseEntity<?> stats(@PathVariable String shortKey) {
-        var mapping = urlShortenService.resolve(shortKey);
-        if (mapping.isEmpty()) {
-            throw new RuntimeException("URL mapping not found");
-        }
-        return ResponseEntity.ok(mapping.get());
+        var mapping = service.getMapping(shortKey);
+        var statsObj = Map.of(
+                "Url", mapping.getLongUrl(),
+                "shortUrl", websiteUrl + mapping.getShortKey(),
+                "clicks", mapping.getClicks());
+        return ResponseEntity.ok(statsObj);
     }
 }

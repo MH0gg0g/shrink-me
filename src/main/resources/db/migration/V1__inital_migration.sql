@@ -8,7 +8,5 @@ CREATE TABLE url_mapping (
 
     PRIMARY KEY (id),
 
-    UNIQUE KEY uk_short_key (short_key),
-
-    INDEX idx_long_url (long_url(255))
+    UNIQUE KEY uk_short_key (short_key)
 );
