@@ -1,11 +1,7 @@
 spring:
   application:
     name: shrink-me
-  datasource:
-    url: jdbc:mysql://localhost:3306/shrink_me?createDatabaseIfNotExist=true 
-    username: root
-    password: root
-
-websiteUrl: http://localhost:8080/
+  profiles:
+    active: prod
 
 default-ttl-minutes: 2

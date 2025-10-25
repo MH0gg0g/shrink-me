@@ -1,0 +1,7 @@
+spring:  
+  datasource:
+    url: jdbc:mysql://localhost:3306/shrink_me?createDatabaseIfNotExist=true 
+    username: root
+    password: root
+
+websiteUrl: http://localhost:8080/
