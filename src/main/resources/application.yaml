@@ -1,7 +1,7 @@
 spring:
   application:
     name: shrink-me
-  profiles:
-    active: prod
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
 
 default-ttl-minutes: 2
