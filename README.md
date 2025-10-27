@@ -4,6 +4,10 @@ A tiny demo URL shortener built with Spring Boot, JPA, Flyway and a small static
 
 This repository contains a small, self-contained demo app that shortens URLs, redirects short keys to the original URL, and exposes a lightweight stats API. It's intended as an example app you can run locally, inspect, and extend.
 
+## Video Preview
+
+Youtube - https://youtu.be/S8T7xiok6e0
+
 ## Key features
 
 - Shorten URLs via a JSON API or the built-in static GUI.
