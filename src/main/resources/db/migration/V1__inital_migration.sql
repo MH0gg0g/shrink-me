@@ -3,7 +3,6 @@ CREATE TABLE url_mapping (
     long_url VARCHAR(2048) NOT NULL,
     short_key VARCHAR(10) NOT NULL,
     created_at TIMESTAMP,
-    expiry_date TIMESTAMP,
     clicks INT DEFAULT 0,
 
     PRIMARY KEY (id),

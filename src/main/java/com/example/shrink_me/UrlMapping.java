@@ -30,9 +30,6 @@ public class UrlMapping {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "expiry_date")
-    private LocalDateTime expiryDate;
-
     @Column(name = "clicks")
     private int clicks;
 
@@ -47,7 +44,6 @@ public class UrlMapping {
     public UrlMapping(String longUrl, String shortKey, int ttlMinutes) {
         this.longUrl = longUrl;
         this.shortKey = shortKey;
-        this.expiryDate = LocalDateTime.now().plusMinutes(ttlMinutes);
     }
 
     public Long getId() {
@@ -82,14 +78,6 @@ public class UrlMapping {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(LocalDateTime expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     public int getClicks() {
         return clicks;
     }
@@ -105,7 +93,6 @@ public class UrlMapping {
                 ", longUrl='" + longUrl + '\'' +
                 ", shortKey='" + shortKey + '\'' +
                 ", createdAt=" + createdAt +
-                ", expiryDate=" + expiryDate +
                 ", clicks=" + clicks +
                 '}';
     }

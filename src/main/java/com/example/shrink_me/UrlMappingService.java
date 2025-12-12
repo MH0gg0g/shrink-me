@@ -1,26 +1,18 @@
 package com.example.shrink_me;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UrlShortenService {
+public class UrlMappingService {
     private final UrlMappingRepository repository;
-    private final int defaultTtlMinutes;
 
-    public UrlShortenService(UrlMappingRepository repository, @Value("${default-ttl-minutes}") int defaultTtlMinutes) {
+    public UrlMappingService(UrlMappingRepository repository) {
         this.repository = repository;
-        this.defaultTtlMinutes = defaultTtlMinutes;
     }
 
     @Transactional
     public UrlMapping shortenUrl(String longUrl) {
-        return shortenUrl(longUrl, null);
-    }
-
-    @Transactional
-    public UrlMapping shortenUrl(String longUrl, Integer ttlMinutes) {
         var existingMapping = repository.findByLongUrl(longUrl);
 
         if (existingMapping.isPresent()) {
@@ -29,11 +21,10 @@ public class UrlShortenService {
 
         String shortkey;
         do {
-            shortkey = RandomKey.generate();
+            shortkey = RandomKeyGenerator.generate();
         } while (repository.findByShortKey(shortkey).isPresent());
 
-        int ttlToUse = (ttlMinutes != null) ? ttlMinutes : defaultTtlMinutes;
-        UrlMapping newMapping = new UrlMapping(longUrl, shortkey, ttlToUse);
+        UrlMapping newMapping = new UrlMapping(longUrl, shortkey);
         repository.save(newMapping);
 
         return newMapping;

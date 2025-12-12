@@ -2,7 +2,7 @@ package com.example.shrink_me;
 
 import java.util.Random;
 
-public class RandomKey {
+public class RandomKeyGenerator {
     private static final String BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final int KEY_LENGTH = 7;
     private static final int BASE = BASE62.length();

@@ -1,17 +1,13 @@
 package com.example.shrink_me;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public class RequestDto {
 
-    @Pattern(regexp = "^(http|https)://.*$", message = "Invalid URL format")
+    @Pattern(regexp = "^(http|https)://.*$", message = "Invalid URL format, must start with http:// or https://")
+    @NotBlank(message = "URL cannot be blank")
     private String url;
-
-    @Min(value = 1, message = "ttlMinutes must be at least 1")
-    @Max(value = 525600, message = "ttlMinutes is too large")
-    private Integer ttlMinutes;
 
     public RequestDto() {
     }
@@ -22,13 +18,5 @@ public class RequestDto {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public Integer getTtlMinutes() {
-        return ttlMinutes;
-    }
-
-    public void setTtlMinutes(Integer ttlMinutes) {
-        this.ttlMinutes = ttlMinutes;
     }
 }

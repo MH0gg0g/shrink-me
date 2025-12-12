@@ -13,22 +13,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
         var errors = new HashMap<String, String>();
 
         ex.getBindingResult().getFieldErrors().forEach(er -> errors.put(er.getField(), er.getDefaultMessage()));
 
-        return ResponseEntity.badRequest().body(errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
-        Map<String, Object> errorMap = Map.ofEntries(
+    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+        var errorMap = Map.ofEntries(
                 Map.entry("Timestamp", LocalDateTime.now()),
                 Map.entry("status", HttpStatus.NOT_FOUND.value()),
                 Map.entry("error", HttpStatus.NOT_FOUND.getReasonPhrase()),
                 Map.entry("message", ex.getMessage()));
 
-        return new ResponseEntity<>(errorMap, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMap);
     }
 }

@@ -16,36 +16,35 @@ import jakarta.validation.Valid;
 public class UrlMappingController {
     @Value("${websiteUrl}")
     private String websiteUrl;
-    private final UrlShortenService service;
+    private final UrlMappingService service;
 
-    public UrlMappingController(UrlShortenService service) {
+    public UrlMappingController(UrlMappingService service) {
         this.service = service;
     }
 
     @PostMapping("/api/shorten")
     public ResponseEntity<?> Shorten(@Valid @RequestBody RequestDto request) {
-        UrlMapping mapping = service.shortenUrl(request.getUrl(), request.getTtlMinutes());
+        UrlMapping mapping = service.shortenUrl(request.getUrl());
         var shortObj = Map.of(
                 "Url", mapping.getLongUrl(),
                 "shortUrl", websiteUrl + mapping.getShortKey(),
-                "CreatedAt", mapping.getCreatedAt().toString(),
-                "ExpiresAt", mapping.getExpiryDate().toString());
+                "CreatedAt", mapping.getCreatedAt().toString());
         return ResponseEntity.ok(shortObj);
     }
 
-    @GetMapping("/{shortKey:[a-zA-Z0-9_-]{4,64}}")
+    @GetMapping("/api/{shortKey:[a-zA-Z0-9]{7}}")
     public ResponseEntity<String> redirect(@PathVariable String shortKey) {
-        var longUrl = service.resolve(shortKey);
+        String longUrl = service.resolve(shortKey);
         return ResponseEntity.ok(longUrl);
     }
 
-    @GetMapping("/api/stats/{shortKey}")
+    @GetMapping("/api/stats/{shortKey:[a-zA-Z0-9]{7}}")
     public ResponseEntity<?> stats(@PathVariable String shortKey) {
-        var mapping = service.getMapping(shortKey);
+        UrlMapping mapping = service.getMapping(shortKey);
         var statsObj = Map.of(
                 "Url", mapping.getLongUrl(),
-                "shortUrl", websiteUrl + mapping.getShortKey(),
-                "clicks", mapping.getClicks());
+                "ShortKey", websiteUrl + mapping.getShortKey(),
+                "Clicks", mapping.getClicks());
         return ResponseEntity.ok(statsObj);
     }
 }
